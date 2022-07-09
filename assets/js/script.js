@@ -13,6 +13,9 @@ var createTask = function(taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+    // check due date
+    auditTask(taskLi);
+
 
   // append to ul list on the page parent 
   $("#list-" + taskList).append(taskLi);
@@ -78,6 +81,10 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
+$("#modalDueDate").datepicker({
+  minDate: 1  // Indicates how many dates after the current date we want the limit to kick in
+});
+
 
 $(".list-group").on("click", "p", function() {  // inside the class .list-group when user clicks, inside p the value can be changed
   var text = $(this)
@@ -139,15 +146,54 @@ $(".list-group").on("click", "span", function(){
   // swap out elements
   $(this).replaceWith(dateInput);
 
+  // enable jquery ui datepicker
+  dateInput.datepicker({
+    minDate: 1,
+
+    onClose: function() {
+      // when calendar is closed, force a "change" event on the `dateInput`
+      $(this).trigger("change");
+    }
+  
+  });
+
   // automatically focus on new element
   dateInput.trigger("focus");
 
 });
 
+var auditTask = function(taskEl){
+
+  // get date from task element
+  var date = $(taskEl).find("span").text().trim();
+  // ensure it worked
+  console.log(date); 
+
+  // convert to moment object at 5:00pm
+  var time = moment(date, "L").set("hour", 17);
+  // this should print out an object for the value of the date variable, but at 5:00pm of that date
+
+   // remove any old classes from element
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+
+  // apply new class if task is near/over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+
+  // apply new class if task is near/over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+  else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning");
+  }
+
+};
 
 // Next, we'll convert them back when the user clicks outside, it will have the same display as when they first see the task 
  
-$(".list-group").on("blur", "input[type='text']", function(){
+$(".list-group").on("change", "input[type='text']", function(){
 
   // get current text
   var date = $(this).val();
@@ -174,6 +220,9 @@ $(".list-group").on("blur", "input[type='text']", function(){
 
   // replace input with span element
   $(this).replaceWith(taskSpan);
+
+  // Pass task's <li> element into auditTask() to check new due date
+  auditTask($(taskSpan).closest(".list-group-item"));
   
 });
 
@@ -205,19 +254,15 @@ $(".card .list-group").sortable({
     var tempArr = [];
   // loop over current set of children in sortable list
       $(this).children().each(function() {
-        var text = $(this)
-        .find("p")
-        .text()
-        .trim();
-    
-      var date = $(this)
-        .find("span")
-        .text()
-        .trim();
-  // add task data to the temp array as an object    
         tempArr.push({
-          text: text,
-          date: date
+          text: $(this)
+            .find("p")
+            .text()
+            .trim(),
+          date: $(this)
+            .find("span")
+            .text()
+            .trim()
         });
     // console.log($(this).children());
     //console.log("update", this);
@@ -230,7 +275,9 @@ $(".card .list-group").sortable({
     // update array on tasks object and save
     tasks[arrName] = tempArr;
     saveTasks();
-    
+    },
+  stop: function(event) {
+    $(this).removeClass("dropover");
   }
 });
 
