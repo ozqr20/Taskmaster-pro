@@ -1,7 +1,6 @@
 # Taskmaster-pro
 
-## Lesson of the week 
-### Third-Party APIs
+## Third-Party APIs
 
 * I learned about third-paty libraries using CDN. Implementation and coumentation on how to use them
 * I used JQuery to manipulate DOM as well as Bootstrap instead of the convencional CSS styles
