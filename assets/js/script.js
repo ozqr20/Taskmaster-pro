@@ -24,6 +24,8 @@ var createTask = function(taskText, taskDate, taskList) {
 var loadTasks = function() {
   tasks = JSON.parse(localStorage.getItem("tasks"));
 
+  //console.log(tasks);
+
   // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
     tasks = {
@@ -62,7 +64,6 @@ var auditTask = function(taskEl){
   // get date from task element
   var date = $(taskEl).find("span").text().trim();
   // ensure it worked
-  console.log(date); 
 
   // convert to moment object at 5:00pm
   var time = moment(date, "L").set("hour", 17);
@@ -117,6 +118,7 @@ $("#task-form-modal .btn-save").click(function() {
       date: taskDate
     });
 
+    console.log(tasks);
     saveTasks();
   }
 });
@@ -130,7 +132,6 @@ $(".list-group").on("click", "p", function() {  // inside the class .list-group 
   var text = $(this)
   .text()
   .trim();
-  console.log(text);
 
   var textInput = $("<textarea>")  // It creates an space for the user to be able to type/ edit inside by creating this element
   .addClass("form-control")
@@ -285,7 +286,6 @@ $(".card .list-group").sortable({
     // console.log($(this).children());
     //console.log("update", this);
     });
-    console.log(tempArr);
     // trim down list's ID to match object property   
     var arrName = $(this)
       .attr("id")
@@ -293,10 +293,7 @@ $(".card .list-group").sortable({
     // update array on tasks object and save
     tasks[arrName] = tempArr;
     saveTasks();
-    },
-  stop: function(event) {
-    $(this).removeClass("dropover");
-  }
+    }
 });
 
 $("#trash").droppable({
@@ -304,13 +301,10 @@ $("#trash").droppable({
   tolerance: "touch",
   drop: function(event,ui){
     ui.draggable.remove();
-    console.log("drop")
   },
   over: function(event,ui){
-    console.log("over");
   },
   out: function(event,ui){
-    console.log("out");
   }
 
 });
